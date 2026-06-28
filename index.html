@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Aufrecht">
@@ -14,8 +14,8 @@
   --accent:#5b8cff;--success:#4ecb71;--gold:#f5c842;--red:#ff6b6b;--purple:#a855f7;
   --text:#e8eaf0;--muted:#7c8099;--border:#2a2d3e;--r:14px;
 }
-html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;-webkit-tap-highlight-color:transparent;}
-body{overflow-x:hidden;padding-bottom:calc(env(safe-area-inset-bottom)+40px)}
+html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation;-webkit-touch-callout:none;}
+body{overflow-x:hidden;overscroll-behavior-y:contain;padding-bottom:calc(env(safe-area-inset-bottom)+40px)}
 
 /* HERO */
 .hero{background:linear-gradient(135deg,#0f1117,#1a1d27);border-bottom:1px solid var(--border);padding:calc(env(safe-area-inset-top)+20px) 20px 18px;text-align:center}
@@ -578,13 +578,16 @@ function showHome(){
   document.getElementById('hdVollPills').innerHTML=p.voll.map(e=>`<span class="pill ${p.newV.includes(e.id)?'pill-new':'pill-b'}">${LIB[e.id].name}${p.newV.includes(e.id)?' 🆕':''}</span>`).join('');
 
   document.getElementById('hdStreakNote').textContent=S.streak>0?`🔥 Streak: ${S.streak} Tage · zählt für Basis und Voll`:'';
+  window.scrollTo(0,0);
 }
 
 function chooseMode(mode){
   S.mode=mode; sv('a3_mode',mode);
   document.getElementById('homeScreen').classList.add('hidden');
+  document.getElementById('resetScreen').classList.add('hidden');
   document.getElementById('mainApp').style.display='block';
   render();
+  window.scrollTo(0,0);
 }
 
 function changeMode(){
@@ -592,20 +595,29 @@ function changeMode(){
   sv('a3_mode',null); sv('a3_done',[]);
   Object.values(timers).forEach(t=>{if(t&&t.iv)clearInterval(t.iv);}); timers={};
   showHome();
+  window.scrollTo(0,0);
 }
 
-function backToHome(){showHome();}
+function backToHome(){
+  // Laufende Reset-Timer stoppen
+  Object.values(resetTimers).forEach(t=>{if(t&&t.iv)clearInterval(t.iv);}); resetTimers={};
+  S.resetOpenId=null;
+  showHome();
+  window.scrollTo(0,0);
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // WICKEL RESET SCREEN
 // ═══════════════════════════════════════════════════════════════════════════
 function showResetScreen(){
   document.getElementById('homeScreen').classList.add('hidden');
+  document.getElementById('mainApp').style.display='none';
   document.getElementById('resetScreen').classList.remove('hidden');
-  S.resetDone=[];
+  S.resetDone=[]; S.resetOpenId=null;
   document.getElementById('rsStreak').textContent=S.resetToday;
   renderResetExercises();
   updateResetBtn();
+  window.scrollTo(0,0);
 }
 
 function renderResetExercises(){
@@ -896,6 +908,20 @@ function closeModal(){
 // ═══════════════════════════════════════════════════════════════════════════
 if(!S.mode) showHome();
 else{document.getElementById('homeScreen').classList.add('hidden');document.getElementById('mainApp').style.display='block';render();}
+</script>
+<script>
+// Verhindert Doppeltipp-Zoom auf iOS
+(function(){
+  var lastTouch=0;
+  document.addEventListener('touchend',function(e){
+    var now=Date.now();
+    if(now-lastTouch<=350){ e.preventDefault(); }
+    lastTouch=now;
+  },{passive:false});
+  // Verhindert Pinch-Zoom
+  document.addEventListener('gesturestart',function(e){e.preventDefault();});
+  document.addEventListener('gesturechange',function(e){e.preventDefault();});
+})();
 </script>
 </body>
 </html>
