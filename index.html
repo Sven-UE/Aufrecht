@@ -15,6 +15,8 @@
   --text:#e8eaf0;--muted:#7c8099;--border:#2a2d3e;--r:14px;
 }
 html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation;-webkit-touch-callout:none;}
+button,.ex-head,.reset-ex-head,.mode-btn,.change-btn,.ms-card{cursor:pointer;touch-action:manipulation;}
+*{-webkit-user-select:none;user-select:none;}
 body{overflow-x:hidden;overscroll-behavior-y:contain;padding-bottom:calc(env(safe-area-inset-bottom)+40px)}
 
 /* HERO */
@@ -910,18 +912,9 @@ if(!S.mode) showHome();
 else{document.getElementById('homeScreen').classList.add('hidden');document.getElementById('mainApp').style.display='block';render();}
 </script>
 <script>
-// Verhindert Doppeltipp-Zoom auf iOS
-(function(){
-  var lastTouch=0;
-  document.addEventListener('touchend',function(e){
-    var now=Date.now();
-    if(now-lastTouch<=350){ e.preventDefault(); }
-    lastTouch=now;
-  },{passive:false});
-  // Verhindert Pinch-Zoom
-  document.addEventListener('gesturestart',function(e){e.preventDefault();});
-  document.addEventListener('gesturechange',function(e){e.preventDefault();});
-})();
+// Verhindert nur Pinch-Zoom (sicher, blockiert keine Taps)
+document.addEventListener('gesturestart',function(e){e.preventDefault();});
+document.addEventListener('gesturechange',function(e){e.preventDefault();});
 </script>
 </body>
 </html>
