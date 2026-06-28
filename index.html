@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Aufrecht">
+<title>Aufrecht</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--surface:#1a1d27;--s2:#222535;
+  --accent:#5b8cff;--success:#4ecb71;--gold:#f5c842;--red:#ff6b6b;--purple:#a855f7;
+  --text:#e8eaf0;--muted:#7c8099;--border:#2a2d3e;--r:14px;
+}
+html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;-webkit-tap-highlight-color:transparent;}
+body{overflow-x:hidden;padding-bottom:calc(env(safe-area-inset-bottom)+40px)}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#0f1117,#1a1d27);border-bottom:1px solid var(--border);padding:calc(env(safe-area-inset-top)+20px) 20px 18px;text-align:center}
+.hero-tag{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:5px}
+.hero-title{font-size:34px;font-weight:900;letter-spacing:-1px}
+.hero-title span{color:var(--accent)}
+.hero-sub{font-size:13px;color:var(--muted);margin-top:3px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:5px 13px;font-size:12px;color:var(--muted);margin-top:11px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--success);animation:pulse 2s infinite;display:inline-block}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* STREAK HERO BAR */
+.streak-hero{margin:14px 16px 0;background:linear-gradient(135deg,#1a1500,#2a2000);border:1px solid rgba(245,200,66,.35);border-radius:16px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between}
+.streak-left{display:flex;align-items:center;gap:14px}
+.streak-flame{font-size:38px;line-height:1}
+.streak-num{font-size:40px;font-weight:900;color:var(--gold);line-height:1;letter-spacing:-2px}
+.streak-label{font-size:12px;color:rgba(245,200,66,.7);font-weight:600;margin-top:2px}
+.streak-right{text-align:right}
+.streak-msg{font-size:12px;color:var(--gold);line-height:1.5;max-width:140px;opacity:.85}
+.streak-sub{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* MODE SCREEN */
+.screen{position:fixed;inset:0;background:var(--bg);z-index:100;overflow-y:auto;padding:calc(env(safe-area-inset-top)+24px) 20px 40px}
+.screen.hidden{display:none}
+.screen-inner{max-width:420px;margin:0 auto}
+
+.home-day-tag{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:6px}
+.home-title{font-size:26px;font-weight:900;margin-bottom:4px}
+.home-title span{color:var(--accent)}
+
+/* STREAK on home screen */
+.home-streak{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#1a1500,#2a2000);border:1px solid rgba(245,200,66,.3);border-radius:12px;padding:12px 16px;margin:14px 0}
+.home-streak-num{font-size:32px;font-weight:900;color:var(--gold);letter-spacing:-1px}
+.home-streak-info{flex:1}
+.home-streak-label{font-size:13px;font-weight:700;color:var(--gold)}
+.home-streak-sub{font-size:11px;color:var(--muted);margin-top:2px}
+
+.phase-chip{display:inline-block;font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px;margin-bottom:14px}
+.coach-box{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:12px;padding:12px 15px;margin-bottom:20px}
+.coach-lbl{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--accent);text-transform:uppercase;margin-bottom:5px}
+.coach-txt{font-size:13px;line-height:1.65;font-style:italic}
+
+/* MODE BUTTONS */
+.mode-btn{width:100%;border:none;border-radius:16px;padding:17px 18px;cursor:pointer;text-align:left;margin-bottom:11px;-webkit-appearance:none}
+.btn-basis{background:linear-gradient(135deg,#1a2a1a,#1e3a1e);border:1px solid rgba(78,203,113,.3)}
+.btn-voll{background:linear-gradient(135deg,#1a1a2a,#1e203a);border:1px solid rgba(91,140,255,.3)}
+.btn-reset{background:linear-gradient(135deg,#1f1030,#2a1545);border:1px solid rgba(168,85,247,.35)}
+.mode-icon{font-size:26px;margin-bottom:5px}
+.mode-name{font-size:18px;font-weight:800;margin-bottom:3px}
+.btn-basis .mode-name{color:var(--success)}
+.btn-voll .mode-name{color:var(--accent)}
+.btn-reset .mode-name{color:var(--purple)}
+.mode-desc{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:9px}
+.pills{display:flex;flex-wrap:wrap;gap:5px}
+.pill{font-size:11px;font-weight:700;padding:3px 8px;border-radius:100px}
+.pill-g{background:rgba(78,203,113,.15);color:var(--success)}
+.pill-b{background:rgba(91,140,255,.15);color:var(--accent)}
+.pill-p{background:rgba(168,85,247,.15);color:var(--purple)}
+.pill-new{background:rgba(245,200,66,.2);color:var(--gold)}
+.streak-note{font-size:12px;color:var(--muted);text-align:center;margin-top:6px}
+
+/* WICKEL RESET SCREEN */
+.reset-screen{position:fixed;inset:0;background:var(--bg);z-index:150;display:flex;flex-direction:column;align-items:center;padding:calc(env(safe-area-inset-top)+24px) 20px 40px;overflow-y:auto}
+.reset-screen.hidden{display:none}
+.reset-inner{width:100%;max-width:400px}
+.reset-header{text-align:center;margin-bottom:20px}
+.reset-title{font-size:26px;font-weight:900;margin-bottom:6px}
+.reset-title span{color:var(--purple)}
+.reset-sub{font-size:13px;color:var(--muted);line-height:1.6}
+.reset-streak{display:flex;align-items:center;justify-content:center;gap:10px;background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.3);border-radius:12px;padding:10px 16px;margin:14px 0}
+.reset-streak-num{font-size:28px;font-weight:900;color:var(--purple)}
+.reset-streak-txt{font-size:13px;color:var(--purple);font-weight:600}
+
+.reset-tip{background:rgba(168,85,247,.07);border:1px solid rgba(168,85,247,.2);border-radius:12px;padding:12px 15px;margin-bottom:18px;font-size:13px;color:var(--purple);line-height:1.6}
+.reset-tip strong{display:block;margin-bottom:4px}
+
+.reset-ex{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden}
+.reset-ex-head{display:flex;align-items:center;gap:12px;padding:13px 15px;cursor:pointer}
+.reset-ex-icon{font-size:26px;width:42px;height:42px;background:var(--s2);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.reset-ex-name{font-size:15px;font-weight:700;margin-bottom:2px}
+.reset-ex-sets{font-size:12px;color:var(--muted)}
+.reset-ex-done{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;margin-left:auto;transition:all .2s}
+.reset-ex-done.chk{background:var(--purple);border-color:var(--purple);color:#fff}
+.reset-ex-body{display:none;border-top:1px solid var(--border);padding:14px}
+.reset-ex-body.open{display:block}
+.reset-step{display:flex;gap:9px;margin-bottom:8px;align-items:flex-start;font-size:13px;line-height:1.6}
+.reset-snum{min-width:20px;height:20px;border-radius:50%;background:rgba(168,85,247,.15);color:var(--purple);font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.reset-done-lbl{text-align:center;color:var(--purple);font-weight:700;font-size:13px;margin-top:10px}
+
+.timer-btn{width:100%;background:var(--purple);color:#fff;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;-webkit-appearance:none}
+.timer-btn.run{background:var(--red)}
+.timer-disp{text-align:center;font-size:30px;font-weight:800;color:var(--gold);letter-spacing:3px;margin-top:7px;display:none}
+.done-btn{width:100%;background:transparent;color:var(--purple);border:1px solid var(--purple);border-radius:10px;padding:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:7px;-webkit-appearance:none}
+
+.reset-finish{width:100%;background:linear-gradient(135deg,var(--purple),#7c3aed);color:#fff;border:none;border-radius:var(--r);padding:15px;font-size:15px;font-weight:800;cursor:pointer;margin-top:16px;-webkit-appearance:none}
+.reset-finish.nope{background:var(--surface);color:var(--muted);cursor:default}
+.reset-back{width:100%;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:var(--r);padding:12px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;-webkit-appearance:none}
+
+/* MAIN APP */
+.mode-bar{margin:12px 16px 0;display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 13px}
+.bar-left{display:flex;align-items:center;gap:10px}
+.bar-icon{font-size:19px}
+.bar-name{font-size:14px;font-weight:700}
+.bar-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.change-btn{font-size:12px;font-weight:700;color:var(--accent);background:rgba(91,140,255,.1);border:1px solid rgba(91,140,255,.2);border-radius:8px;padding:6px 11px;cursor:pointer;-webkit-appearance:none}
+
+.phase-banner{margin:10px 16px 0;border-radius:12px;padding:11px 15px}
+.pb-title{font-size:12px;font-weight:700;margin-bottom:2px}
+.pb-sub{font-size:12px;opacity:.8;line-height:1.5}
+
+.coach-warn{margin:9px 16px 0;background:rgba(245,200,66,.08);border:1px solid rgba(245,200,66,.25);border-radius:12px;padding:10px 13px;font-size:13px;color:var(--gold);line-height:1.55;display:none}
+.coach-warn.show{display:block}
+
+.sec{margin:16px 16px 0}
+.sec-lbl{font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:9px}
+
+.mot-box{margin:12px 16px 0;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--r);padding:12px 15px}
+.mot-lbl{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--accent);text-transform:uppercase;margin-bottom:4px}
+.mot-txt{font-size:13px;line-height:1.65;font-style:italic}
+
+.stats-row{display:flex;gap:7px;margin:12px 16px 0}
+.stat{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:9px 7px;text-align:center}
+.stat-v{font-size:18px;font-weight:800;margin-bottom:2px}
+.stat-l{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+
+.ms-row{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+.ms-row::-webkit-scrollbar{display:none}
+.ms-card{flex:0 0 auto;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:9px 12px;min-width:118px;text-align:center;position:relative}
+.ms-card.active{border-color:var(--accent)}
+.ms-card.done{border-color:var(--success)}
+.ms-chk{position:absolute;top:-7px;right:-7px;background:var(--success);color:#000;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800}
+.ms-wk{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
+.ms-goal{font-size:11px;font-weight:600;line-height:1.4}
+.ms-card.active .ms-goal{color:var(--accent)}
+
+.prog-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.prog-day{font-size:19px;font-weight:800}
+.prog-day span{font-size:13px;font-weight:400;color:var(--muted)}
+.prog-ph{font-size:12px;color:var(--muted);margin-top:2px}
+.prog-bar{background:var(--surface);border-radius:100px;height:6px}
+.prog-fill{height:6px;border-radius:100px;background:linear-gradient(90deg,var(--accent),#8b5cf6);transition:width .5s}
+.prog-cnt{font-size:11px;color:var(--muted);margin-top:5px;text-align:right}
+
+.new-badge{font-size:10px;font-weight:700;background:rgba(245,200,66,.2);color:var(--gold);padding:2px 6px;border-radius:100px;margin-left:5px;vertical-align:middle}
+
+.ex-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:9px;overflow:hidden;transition:border-color .2s}
+.ex-card.done-c{border-color:var(--success)}
+.ex-card.open-c{border-color:var(--accent)}
+.ex-head{display:flex;align-items:center;gap:11px;padding:13px 14px;cursor:pointer}
+.ex-ico{width:43px;height:43px;border-radius:11px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.ex-nm{font-size:14px;font-weight:700;margin-bottom:2px}
+.ex-st{font-size:12px;color:var(--muted)}
+.ex-chk{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;transition:all .2s}
+.ex-chk.chk{background:var(--success);border-color:var(--success);color:#000}
+
+.ex-body{display:none;border-top:1px solid var(--border);padding:14px}
+.ex-body.open{display:block}
+.inf-lbl{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--accent);text-transform:uppercase;margin-bottom:3px}
+.mus-txt{font-size:13px;color:var(--muted);margin-bottom:10px}
+.why-box{background:rgba(91,140,255,.07);border-radius:10px;padding:9px 11px;font-size:13px;line-height:1.6;margin-bottom:12px}
+.stp-lbl{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+.stp-row{display:flex;gap:9px;margin-bottom:8px;align-items:flex-start}
+.stp-num{min-width:20px;height:20px;border-radius:50%;background:rgba(91,140,255,.15);color:var(--accent);font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.stp-txt{font-size:13px;line-height:1.6}
+.tip-box{background:rgba(91,140,255,.08);border:1px solid rgba(91,140,255,.2);border-radius:10px;padding:9px 11px;margin-top:4px;font-size:12px;color:var(--accent);line-height:1.5}
+.err-box{background:rgba(255,107,107,.07);border:1px solid rgba(255,107,107,.2);border-radius:10px;padding:9px 11px;margin-top:7px;font-size:12px;color:var(--red);line-height:1.5}
+.bold{font-weight:700;margin-right:3px}
+
+.main-timer-btn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;-webkit-appearance:none}
+.main-timer-btn.run{background:var(--red)}
+.main-done-btn{width:100%;background:transparent;color:var(--success);border:1px solid var(--success);border-radius:10px;padding:9px;font-size:14px;font-weight:700;cursor:pointer;margin-top:7px;-webkit-appearance:none}
+.done-lbl{text-align:center;color:var(--success);font-weight:700;font-size:13px;margin-top:10px}
+
+.complete-wrap{margin:16px 16px 0}
+.complete-btn{width:100%;border:1px solid var(--border);border-radius:var(--r);padding:15px;font-size:15px;font-weight:800;cursor:pointer;transition:all .3s;-webkit-appearance:none}
+.complete-btn.ready{background:linear-gradient(135deg,#4ecb71,#2fb055);color:#000;border-color:transparent}
+.complete-btn.nope{background:var(--surface);color:var(--muted);cursor:default}
+
+/* PROGRESS TIMELINE */
+.timeline{margin:14px 16px 0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
+.tl-title{font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:12px}
+.tl-row{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
+.tl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.tl-dot.past{background:var(--success)}
+.tl-dot.now{background:var(--accent);box-shadow:0 0 0 3px rgba(91,140,255,.2)}
+.tl-dot.future{background:var(--border)}
+.tl-content{}
+.tl-when{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:2px}
+.tl-what{font-size:13px;line-height:1.5}
+.tl-row.now-row .tl-what{color:var(--accent);font-weight:600}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px 22px;text-align:center;max-width:340px;width:100%}
+.modal-em{font-size:50px;margin-bottom:13px}
+.modal-ti{font-size:22px;font-weight:800;margin-bottom:8px}
+.modal-tx{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:20px;white-space:pre-line}
+.modal-btn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;-webkit-appearance:none}
+</style>
+</head>
+<body>
+
+<!-- ═══ HOME SCREEN ══════════════════════════════════════════════════════════ -->
+<div class="screen" id="homeScreen">
+<div class="screen-inner">
+  <div class="home-day-tag">Aufrecht · Tag <span id="hdDay">1</span> von 56</div>
+  <div class="home-title">Was machst du<br><span>heute?</span></div>
+
+  <!-- STREAK PROMINENT -->
+  <div class="home-streak">
+    <div class="home-streak-num">🔥 <span id="hsStreak">0</span></div>
+    <div class="home-streak-info">
+      <div class="home-streak-label" id="hsLabel">Starte deinen Streak!</div>
+      <div class="home-streak-sub" id="hsSub">Trainiere heute und leg los</div>
+    </div>
+  </div>
+
+  <div id="hdPhaseChip" class="phase-chip"></div>
+
+  <div class="coach-box">
+    <div class="coach-lbl">💬 Coach</div>
+    <div class="coach-txt" id="hdCoach"></div>
+  </div>
+
+  <!-- WICKEL RESET — prominent oben -->
+  <button class="mode-btn btn-reset" onclick="showResetScreen()">
+    <div class="mode-icon">🍼</div>
+    <div class="mode-name">Wickel-Reset</div>
+    <div class="mode-desc">Nach dem Wickeln · 60 Sekunden · Stehend am Wickeltisch<br>Neutralisiert die Vorbeuge sofort. Eigener Streak.</div>
+    <div class="pills">
+      <span class="pill pill-p">Chin Tuck</span>
+      <span class="pill pill-p">Schulterblätter</span>
+      <span class="pill pill-p">Brustöffner</span>
+    </div>
+  </button>
+
+  <button class="mode-btn btn-basis" onclick="chooseMode('basis')">
+    <div class="mode-icon">🟢</div>
+    <div class="mode-name">Basis</div>
+    <div class="mode-desc" id="hdBasisDesc"></div>
+    <div class="pills" id="hdBasisPills"></div>
+  </button>
+
+  <button class="mode-btn btn-voll" onclick="chooseMode('voll')">
+    <div class="mode-icon">🔵</div>
+    <div class="mode-name">Voll</div>
+    <div class="mode-desc" id="hdVollDesc"></div>
+    <div class="pills" id="hdVollPills"></div>
+  </button>
+
+  <div class="streak-note" id="hdStreakNote"></div>
+</div>
+</div>
+
+<!-- ═══ WICKEL RESET SCREEN ═════════════════════════════════════════════════ -->
+<div class="reset-screen hidden" id="resetScreen">
+<div class="reset-inner">
+  <div class="reset-header">
+    <div style="font-size:40px;margin-bottom:8px">🍼</div>
+    <div class="reset-title">Wickel-<span>Reset</span></div>
+    <div class="reset-sub">60 Sekunden · Stehend am Wickeltisch<br>Neutralisiert die Vorbeuge — sofort nach dem Wickeln.</div>
+  </div>
+
+  <div class="reset-streak">
+    <div class="reset-streak-num">🍼 <span id="rsStreak">0</span></div>
+    <div class="reset-streak-txt">Wickel-Resets heute</div>
+  </div>
+
+  <div class="reset-tip">
+    <strong>⚠️ Warum das wichtig ist:</strong>
+    3× täglich über den Wickeltisch beugen = mehr Rundrücken-Risiko als Büroarbeit. Dieser Reset neutralisiert jede Vorbeuge in 60 Sekunden.
+  </div>
+
+  <div id="resetExList"></div>
+
+  <button class="reset-finish nope" id="resetFinishBtn" onclick="finishReset()">
+    Alle 3 erledigt — Reset abgeschlossen ✓
+  </button>
+  <button class="reset-back" onclick="backToHome()">← Zurück</button>
+</div>
+</div>
+
+<!-- ═══ MAIN APP ══════════════════════════════════════════════════════════════ -->
+<div id="mainApp" style="display:none">
+
+<div class="hero">
+  <div class="hero-tag">Dein Personal Trainer</div>
+  <h1 class="hero-title">Aufrecht<span>.</span></h1>
+  <p class="hero-sub">Rücken · Haltung · Kraft</p>
+  <div class="hero-badge"><span class="dot"></span> Coach aktiv · Sven, 38 J.</div>
+</div>
+
+<!-- STREAK IN MAIN -->
+<div class="streak-hero">
+  <div class="streak-left">
+    <div class="streak-flame">🔥</div>
+    <div>
+      <div class="streak-num" id="mainStreakNum">0</div>
+      <div class="streak-label">Tage Streak</div>
+    </div>
+  </div>
+  <div class="streak-right">
+    <div class="streak-msg" id="mainStreakMsg"></div>
+    <div class="streak-sub" id="mainStreakSub"></div>
+  </div>
+</div>
+
+<div class="mode-bar">
+  <div class="bar-left">
+    <div class="bar-icon" id="barIcon"></div>
+    <div>
+      <div class="bar-name" id="barName"></div>
+      <div class="bar-sub" id="barSub"></div>
+    </div>
+  </div>
+  <button class="change-btn" onclick="changeMode()">Wechseln</button>
+</div>
+
+<div id="phaseBanner" class="phase-banner"></div>
+<div class="coach-warn" id="coachWarn"></div>
+
+<div class="mot-box">
+  <div class="mot-lbl">💬 Dein Coach heute</div>
+  <div class="mot-txt" id="motTxt"></div>
+</div>
+
+<div class="stats-row">
+  <div class="stat"><div class="stat-v" style="color:var(--gold)" id="stStreak">0</div><div class="stat-l">🔥 Streak</div></div>
+  <div class="stat"><div class="stat-v" style="color:var(--success)" id="stBasis">0</div><div class="stat-l">🟢 Basis</div></div>
+  <div class="stat"><div class="stat-v" style="color:var(--accent)" id="stVoll">0</div><div class="stat-l">🔵 Voll</div></div>
+  <div class="stat"><div class="stat-v" style="color:var(--purple)" id="stReset">0</div><div class="stat-l">🍼 Reset</div></div>
+</div>
+
+<div class="sec">
+  <div class="sec-lbl">🎯 Meilensteine</div>
+  <div class="ms-row" id="msRow"></div>
+</div>
+
+<!-- FORTSCHRITT TIMELINE -->
+<div class="timeline">
+  <div class="tl-title">📈 Wann spürst du Fortschritt?</div>
+  <div id="tlRows"></div>
+</div>
+
+<div class="sec">
+  <div class="prog-head">
+    <div>
+      <div class="prog-day" id="progDay">Tag 1 <span>von 56</span></div>
+      <div class="prog-ph" id="progPh"></div>
+    </div>
+    <div style="background:linear-gradient(135deg,#f5c842,#ff9d42);border-radius:100px;padding:5px 11px;font-size:12px;font-weight:800;color:#000" id="streakBadge">🔥 0</div>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  <div class="prog-cnt" id="progCnt"></div>
+</div>
+
+<div class="sec">
+  <div class="sec-lbl">⚡ Heutiges Workout</div>
+  <div id="exList"></div>
+</div>
+
+<div class="complete-wrap">
+  <button class="complete-btn nope" id="completeBtn" onclick="finishWorkout()">Alle Übungen erledigen</button>
+</div>
+
+</div><!-- /mainApp -->
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <div class="modal-em" id="modEm">🏆</div>
+    <div class="modal-ti" id="modTi"></div>
+    <div class="modal-tx" id="modTx"></div>
+    <button class="modal-btn" onclick="closeModal()">Weiter so! 💪</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// EXERCISE LIBRARY
+// ═══════════════════════════════════════════════════════════════════════════
+const LIB = {
+  wall_angel:{id:"wall_angel",icon:"🧱",name:"Wall Angel",muscle:"Schulterblatt-Stabilisatoren · oberer Rücken",why:"Löst das Abrunden der Schultern auf — häufigste Ursache von Rundrücken bei Büroarbeit.",steps:["Rücken flach an Wand: Hinterkopf, Schulterblätter und Po berühren die Wand.","Arme 90° anwinkeln (W-Form), Handrücken zur Wand.","Langsam in Y-Form schieben — Wandkontakt immer halten!","Zurück in W. Wenn Arme die Wand verlassen: genau hier üben.","30 Sek. Pause nach jedem Satz."],tip:"Anspannung zwischen Schulterblättern = korrekt.",err:"❌ Rücken wölbt sich — Bauch anspannen, Lendenwirbel zur Wand."},
+  dead_bug:{id:"dead_bug",icon:"🪲",name:"Dead Bug",muscle:"Tiefe Bauchmuskulatur · Rumpfstabilität",why:"Das unsichtbare Korsett der Wirbelsäule. Ohne tiefe Rumpfmuskulatur keine stabile Haltung.",steps:["Rücken auf Boden, Arme zur Decke, Beine 90° hoch.","Einatmen. Ausatmen: linker Arm + rechtes Bein Richtung Boden.","Unterer Rücken bleibt flach — kein Hohlkreuz!","Zurück zur Mitte, Seite wechseln.","Rücken hebt sich? Beine nur halb senken."],tip:"Bauchnabel zum Boden drücken hält den Rücken flach.",err:"❌ Luft anhalten — weiteratmen, Atmung ist Teil der Übung."},
+  chin_tuck:{id:"chin_tuck",icon:"🧑",name:"Chin Tuck",muscle:"Tiefe Halsflexoren · obere Halswirbelsäule",why:"Korrigiert den Vorwärtskopf durch Bildschirmarbeit — häufigste Haltungsstörung im Nacken.",steps:["Aufrecht stehen oder sitzen, Schultern entspannt zurück.","Kinn waagerecht nach hinten schieben — nicht nicken!","Leichtes Doppelkinn = korrekt und gewollt.","5 Sekunden halten, entspannen.","Überall ausführbar — auch unbemerkt."],tip:"3× täglich zusätzlich macht einen riesigen Unterschied.",err:"❌ Kopf nickt statt schiebt — horizontal nach hinten."},
+  bird_dog:{id:"bird_dog",icon:"🐦",name:"Bird Dog",muscle:"Rückenstrecker · Gesäß · Schulterblätter",why:"Verbindet Schulter, Rumpf und Hüfte. Trainiert Koordination für aufrechten Gang.",steps:["Auf alle Viere: Hände unter Schultern, Knie unter Hüften.","Bauch leicht anspannen, Rücken gerade.","Rechten Arm + linkes Bein gleichzeitig strecken.","3 Sek. halten, keine Rumpfdrehung.","Kontrolliert zurück, Seite wechseln."],tip:"Glas Wasser auf dem Rücken — kein Tropfen darf fallen.",err:"❌ Hüfte kippt — kürzer strecken, mehr Stabilität."},
+  plank:{id:"plank",icon:"⚡",name:"Forearm Plank",muscle:"Gesamter Rumpf · Schultern · Gesäß",why:"Aktiviert die gesamte Körperrückseite — Grundlage für Haltungsstabilität.",steps:["Auf Unterarme stützen, Ellenbogen unter Schultern.","Gerade Linie von Kopf bis Ferse.","Gesäß nicht hochschieben oder hängen lassen.","Blick Richtung Boden.","Ruhig atmen, halten."],tip:"10 Atemzüge = ca. 30 Sekunden.",err:"❌ Verkrampfen — Spannung durch ruhige Aktivierung."},
+  superman:{id:"superman",icon:"🦸",name:"Superman",muscle:"Rückenstrecker · Gesäß · hintere Schulter",why:"Stärkt die gesamte Rückseite — Gegenspieler zur Beugehaltung.",steps:["Bauchlage, Arme nach vorne gestreckt.","Gleichzeitig Arme, Brust und Beine heben.","2–3 Sek. halten.","Langsam absenken.","Fließende Bewegung, nicht ruckartig."],tip:"Jemand zieht dich gleichzeitig an Händen und Füßen auseinander.",err:"❌ Nacken überstrecken — Blick bleibt Richtung Boden."},
+  side_plank:{id:"side_plank",icon:"📐",name:"Side Plank",muscle:"Seitliche Rumpfmuskulatur · Hüftstabilisatoren",why:"Seitliche Rumpfkraft verhindert das Einsinken der Wirbelsäule.",steps:["Auf die Seite, Unterarm auf Boden, Ellenbogen unter Schulter.","Hüfte anheben: gerade diagonale Linie.","Hüfte nicht durchhängen lassen.","Halten, Seite wechseln.","Anfänger: Knie auf dem Boden."],tip:"Hüfte aktiv nach oben drücken — nicht nur halten.",err:"❌ Hüfte sackt — kürzere Zeit, dafür korrekte Form."},
+  glute_bridge:{id:"glute_bridge",icon:"🌉",name:"Glute Bridge",muscle:"Gesäß · hintere Oberschenkel · unterer Rücken",why:"Schwaches Gesäß = Kompensation durch Rücken = Schmerz. Das Fundament.",steps:["Rückenlage, Knie angewinkelt, Füße hüftbreit.","Hüfte nach oben drücken bis zur geraden Linie.","Gesäß oben fest zusammenkneifen, 2 Sek. halten.","Langsam absenken, nicht ganz auf Boden.","Kontinuierliche Bewegung."],tip:"Fersen aktiv in Boden drücken aktiviert Gesäß stärker.",err:"❌ Lendenwirbel überstrecken — nur bis zur geraden Linie."},
+  reverse_snow_angel:{id:"reverse_snow_angel",icon:"❄️",name:"Reverse Snow Angel",muscle:"Mittlerer Trapezmuskel · Rhomboiden",why:"Trainiert die Muskeln, die Schulterblätter zurückziehen — direkt gegen Rundrücken.",steps:["Bauchlage, Arme an der Seite, Handflächen nach unten.","Arme vom Boden heben und langsam nach oben führen.","Schulterblätter aktiv zusammenziehen.","Oben kurz halten, langsam zurück.","Kopf bleibt unten."],tip:"Langsamer = mehr Aktivierung.",err:"❌ Nacken überstrecken — Bewegung nur bis Hinterkopf."},
+  hip_hinge:{id:"hip_hinge",icon:"🔩",name:"Hip Hinge",muscle:"Hintere Oberschenkel · Gesäß · unterer Rücken",why:"Wer korrekt die Hüfte scharniert, belastet die Wirbelsäule nicht. Direkt relevant fürs Wickeln!",steps:["Aufrecht stehen, Füße hüftbreit, leichte Kniebeuge.","Hände an Oberschenkeln, Rücken gerade.","Oberkörper nach vorne kippen — Bewegung aus der Hüfte, nicht dem Rücken.","Hüfte nach hinten schieben.","Zurück in den Stand, Gesäß anspannen."],tip:"Stell dir vor, du willst mit dem Hintern die Wand hinter dir berühren.",err:"❌ Rücken rundet — immer gerade, auch bei kleinerem Bewegungsradius."},
+  single_leg_glute_bridge:{id:"single_leg_glute_bridge",icon:"🦵",name:"Single Leg Glute Bridge",muscle:"Gesäß einseitig · Hüftstabilisatoren",why:"Deckt Ungleichgewichte auf und korrigiert sie — wichtig für symmetrische Haltung.",steps:["Rückenlage, ein Bein angewinkelt, das andere gestreckt nach oben.","Hüfte hochdrücken nur über das gebeugte Bein.","Gestrecktes Bein parallel halten.","2 Sek. oben halten, Gesäß anspannen.","Seite wechseln."],tip:"Wackeln ist normal — das ist der Trainingsreiz.",err:"❌ Hüfte kippt zur freien Seite — schwache Hüftabduktoren."},
+  push_up_neg:{id:"push_up_neg",icon:"💪",name:"Push-Up Negativ",muscle:"Brust · Schultern · Trizeps · Rumpf",why:"Stärkt Schulter-Stabilisatoren — wichtig gegen Vorwärtsrollen der Schultern.",steps:["Liegestützposition, Hände etwas breiter als Schultern.","Gerade Linie — kein Hohlkreuz.","Sehr langsam absenken: 4–5 Sek. runter.","Brust fast auf den Boden.","Hochdrücken normal — die Übung liegt im Absenken."],tip:"Je langsamer das Absenken, desto mehr Schulter-Stabilisatoren.",err:"❌ Ellenbogen fliegen — nah am Körper halten, ca. 45°."},
+  plank_shoulder_tap:{id:"plank_shoulder_tap",icon:"👆",name:"Plank Shoulder Tap",muscle:"Rumpf · Schulterblatt-Stabilisatoren · Anti-Rotation",why:"Trainiert Widerstand gegen Rotationskräfte — entscheidend für aufrechten Gang.",steps:["Hohe Liegestützposition auf Handflächen.","Gerade Linie, Füße etwas breiter.","Rechte Hand tippt linke Schulter an.","Hüfte bleibt ruhig — nicht drehen!","Seite wechseln, kontinuierlich."],tip:"Hüfte so still wie möglich — das ist die eigentliche Übung.",err:"❌ Hüfte schaukelt — Füße weiter, langsamer werden."},
+  bear_crawl_hold:{id:"bear_crawl_hold",icon:"🐻",name:"Bear Crawl Hold",muscle:"Tiefer Rumpf · Schultern · Hüftbeuger",why:"Ultimative Rumpfstabilität unter Spannung — funktionelle Haltungskraft.",steps:["Auf alle Viere, Knie 5 cm vom Boden abheben.","Rücken gerade, Hüfte auf Schulterniveau.","Statisch halten ohne zu wackeln.","Fortgeschritten: einen Schritt vor, zurück.","Atmen!"],tip:"Bei Sekunde 20 merkst du was trainiert wird.",err:"❌ Hüfte steigt zu hoch — Knie nahe am Boden."},
+};
+
+// WICKEL RESET ÜBUNGEN
+const RESET_EX = [
+  {id:"r1",icon:"🧑",name:"Chin Tuck",sets:"10 Wdh. · 5 Sek. Halt",
+   steps:["Aufrecht stehen, Schultern zurück und runter.","Kinn waagerecht nach hinten schieben — nicht nicken.","Leichtes Doppelkinn = korrekt.","5 Sekunden halten, entspannen.","10 Wiederholungen direkt am Wickeltisch."],
+   tip:"Macht die Vorbeuge für den Nacken sofort rückgängig."},
+  {id:"r2",icon:"🔙",name:"Schulterblätter zusammenziehen",sets:"10 Wdh. · 5 Sek. Halt",
+   steps:["Aufrecht stehen, Arme locker an der Seite.","Schulterblätter aktiv nach hinten und unten ziehen.","Brust öffnet sich — das ist das Ziel.","5 Sekunden halten, dann loslassen.","10 Wiederholungen."],
+   tip:"Stell dir vor, du willst mit den Schulterblättern einen Stift in der Mitte des Rückens halten."},
+  {id:"r3",icon:"🌬️",name:"Brustöffner mit Atemzug",sets:"5 tiefe Atemzüge",
+   steps:["Aufrecht stehen, Füße hüftbreit.","Hände hinter dem Rücken verschränken oder Arme seitlich öffnen.","Tief einatmen — Brustkorb hebt sich aktiv an.","Schultern fallen beim Einatmen nach hinten.","5 langsame, tiefe Atemzüge."],
+   tip:"Dieser Atemzug resettet das gesamte Haltungsmuster in 30 Sekunden."},
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PROGRAMM
+// ═══════════════════════════════════════════════════════════════════════════
+const PROGRAM = [
+  {name:"Phase 1 · Körperbewusstsein",weeks:"Woche 1–2",color:"rgba(91,140,255,.12)",border:"rgba(91,140,255,.3)",tc:"var(--accent)",focus:"Technik vor Tempo. Spüre deinen Körper.",
+   basis:[{id:"wall_angel",sets:"2 Sätze",reps:"10 Wdh."},{id:"dead_bug",sets:"2 Sätze",reps:"8 Wdh./Seite"},{id:"chin_tuck",sets:"2 Sätze",reps:"12 Wdh. · 5 Sek."}],
+   voll:[{id:"wall_angel",sets:"3 Sätze",reps:"10 Wdh."},{id:"dead_bug",sets:"3 Sätze",reps:"8 Wdh./Seite"},{id:"bird_dog",sets:"3 Sätze",reps:"8 Wdh./Seite"},{id:"plank",sets:"3 Sätze",reps:"30 Sek."},{id:"chin_tuck",sets:"3 Sätze",reps:"12 Wdh. · 5 Sek."}],
+   newB:[],newV:["wall_angel","dead_bug","bird_dog","plank","chin_tuck"]},
+  {name:"Phase 2 · Tiefenmuskulatur",weeks:"Woche 3–4",color:"rgba(78,203,113,.1)",border:"rgba(78,203,113,.3)",tc:"var(--success)",focus:"Mehr Sätze, neue Übungen. Du spürst die Veränderung.",
+   basis:[{id:"wall_angel",sets:"3 Sätze",reps:"12 Wdh."},{id:"dead_bug",sets:"3 Sätze",reps:"10 Wdh./Seite"},{id:"glute_bridge",sets:"2 Sätze",reps:"15 Wdh.",note:"NEU"},{id:"chin_tuck",sets:"2 Sätze",reps:"15 Wdh. · 5 Sek."}],
+   voll:[{id:"wall_angel",sets:"3 Sätze",reps:"12 Wdh."},{id:"dead_bug",sets:"3 Sätze",reps:"10 Wdh./Seite"},{id:"bird_dog",sets:"3 Sätze",reps:"10 Wdh./Seite"},{id:"plank",sets:"3 Sätze",reps:"40 Sek.",note:"+10 Sek."},{id:"superman",sets:"3 Sätze",reps:"10 Wdh. · 3 Sek.",note:"NEU"},{id:"glute_bridge",sets:"3 Sätze",reps:"15 Wdh.",note:"NEU"},{id:"chin_tuck",sets:"2 Sätze",reps:"15 Wdh. · 5 Sek."}],
+   newB:["glute_bridge"],newV:["superman","glute_bridge"]},
+  {name:"Phase 3 · Stabilität",weeks:"Woche 5–6",color:"rgba(245,200,66,.1)",border:"rgba(245,200,66,.3)",tc:"var(--gold)",focus:"Haltung beginnt automatisch zu werden.",
+   basis:[{id:"wall_angel",sets:"3 Sätze",reps:"12 Wdh."},{id:"dead_bug",sets:"3 Sätze",reps:"10 Wdh./Seite"},{id:"side_plank",sets:"2 Sätze",reps:"25 Sek./Seite",note:"NEU"},{id:"glute_bridge",sets:"3 Sätze",reps:"15 Wdh. · 2 Sek."},{id:"chin_tuck",sets:"2 Sätze",reps:"15 Wdh. · 5 Sek."}],
+   voll:[{id:"wall_angel",sets:"4 Sätze",reps:"12 Wdh.",note:"+1 Satz"},{id:"dead_bug",sets:"3 Sätze",reps:"12 Wdh./Seite"},{id:"bird_dog",sets:"3 Sätze",reps:"12 Wdh. · 3 Sek."},{id:"side_plank",sets:"3 Sätze",reps:"30 Sek./Seite",note:"NEU"},{id:"reverse_snow_angel",sets:"3 Sätze",reps:"12 Wdh.",note:"NEU"},{id:"single_leg_glute_bridge",sets:"3 Sätze",reps:"10 Wdh./Seite",note:"NEU"},{id:"plank",sets:"3 Sätze",reps:"45 Sek."},{id:"chin_tuck",sets:"2 Sätze",reps:"15 Wdh. · 5 Sek."}],
+   newB:["side_plank"],newV:["side_plank","reverse_snow_angel","single_leg_glute_bridge"]},
+  {name:"Phase 4 · Kraft & Kontrolle",weeks:"Woche 7–8",color:"rgba(255,107,107,.1)",border:"rgba(255,107,107,.3)",tc:"var(--red)",focus:"Maximale Intensität. Du bist nicht mehr derselbe wie in Woche 1.",
+   basis:[{id:"wall_angel",sets:"3 Sätze",reps:"15 Wdh."},{id:"dead_bug",sets:"3 Sätze",reps:"12 Wdh./Seite"},{id:"side_plank",sets:"2 Sätze",reps:"35 Sek./Seite"},{id:"single_leg_glute_bridge",sets:"2 Sätze",reps:"10 Wdh./Seite",note:"NEU"},{id:"chin_tuck",sets:"2 Sätze",reps:"15 Wdh. · 8 Sek."}],
+   voll:[{id:"wall_angel",sets:"4 Sätze",reps:"15 Wdh."},{id:"push_up_neg",sets:"3 Sätze",reps:"8 Wdh. · 5 Sek.",note:"NEU"},{id:"plank_shoulder_tap",sets:"3 Sätze",reps:"10 Wdh./Seite",note:"NEU"},{id:"side_plank",sets:"3 Sätze",reps:"40 Sek./Seite"},{id:"reverse_snow_angel",sets:"3 Sätze",reps:"15 Wdh."},{id:"bear_crawl_hold",sets:"3 Sätze",reps:"30 Sek.",note:"NEU"},{id:"single_leg_glute_bridge",sets:"3 Sätze",reps:"12 Wdh./Seite"},{id:"hip_hinge",sets:"3 Sätze",reps:"12 Wdh.",note:"NEU"},{id:"chin_tuck",sets:"2 Sätze",reps:"15 Wdh. · 8 Sek."}],
+   newB:["single_leg_glute_bridge"],newV:["push_up_neg","plank_shoulder_tap","bear_crawl_hold","hip_hinge"]},
+];
+
+const MILESTONES=[
+  {week:"Woche 1–2",goal:"Körperbewusstsein aufbauen",day:14},
+  {week:"Woche 3–4",goal:"Tiefenmuskulatur spürbar",day:28},
+  {week:"Woche 5–6",goal:"Aufrechter Gang automatisch",day:42},
+  {week:"Woche 8",goal:"Sichtbare Verbesserung 📸",day:56},
+];
+
+const TIMELINE_ENTRIES=[
+  {when:"Tag 3–5",what:"Du bemerkst, wo du verspannt bist. Bewusstsein entsteht."},
+  {when:"Woche 2",what:"Erstes Körpergefühl. Du merkst, wenn du schlecht sitzt."},
+  {when:"Woche 3–4",what:"Rücken fühlt sich stabiler an. Weniger Verspannungen nach langem Sitzen."},
+  {when:"Woche 5–6",what:"Aufrechter Gang passiert automatisch — ohne daran zu denken."},
+  {when:"Woche 8",what:"Andere Menschen bemerken es. Foto-Vergleich wird dich überraschen. 📸"},
+];
+
+const MOT_V=["Voll-Modus heute — das ist der Reiz, der echten Fortschritt baut. 20 Minuten für deinen Rücken.","Alle Übungen, volle Konzentration. Arian und Liliana sehen einen aktiven Papa.","Voll gewählt — starke Entscheidung. Dein Körper lernt neue Muster.","Portugal, Sonne, Training. Schlechte Ausreden gibt's keine.","Wer Voll wählt, baut. Los!"];
+const MOT_B=["Basis heute — kluge Entscheidung. 10 Minuten sauber schlagen 0 Minuten jeden Tag.","Müde nach dem Wickeln? Kein Problem. Gewohnheit bleibt, Streak bleibt.","Basis ist kein Rückschritt. Es ist das Fundament.","Kurz, sauber, erledigt. Das zählt.","Dein Körper dankt dir auch für 10 Minuten."];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════════════
+function ld(k,d){try{const v=localStorage.getItem(k);return v!==null?JSON.parse(v):d;}catch{return d;}}
+function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+
+let S={
+  day:ld('a3_day',1), streak:ld('a3_streak',0),
+  done:ld('a3_done',[]), mode:ld('a3_mode',null),
+  basisStreak:ld('a3_bs',0), totBasis:ld('a3_tb',0), totVoll:ld('a3_tv',0),
+  totReset:ld('a3_tr',0), resetToday:ld('a3_rt',0),
+  resetDone:[], openId:null, resetOpenId:null,
+};
+let timers={}, resetTimers={};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
+function phIdx(){return Math.min(Math.floor((S.day-1)/14),3);}
+function ph(){return PROGRAM[phIdx()];}
+function getExs(){
+  const p=ph(), list=S.mode==='basis'?p.basis:p.voll;
+  return list.map(e=>({...LIB[e.id],sets:e.sets,reps:e.reps,note:e.note||'',isNew:(S.mode==='basis'?p.newB:p.newV).includes(e.id)}));
+}
+function fmtTime(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+
+// Berechnet Countdown-Sekunden aus dem reps-Text
+// Wiederholungen: ~3 Sek pro Wdh (langsame saubere Ausführung)
+// Halteübungen: die Haltezeit direkt
+function calcCountdown(reps){
+  if(!reps) return 30;
+  // Halteübung pur, z.B. "30 Sek." oder "25 Sek./Seite"
+  var holdMatch = reps.match(/(\d+)\s*Sek/);
+  var repMatch = reps.match(/(\d+)\s*Wdh/);
+  if(repMatch && !holdMatch){
+    // reine Wiederholungen: 3 Sek pro Wdh
+    var reps_n = parseInt(repMatch[1]);
+    var perSide = /Seite/.test(reps) ? 2 : 1;
+    return reps_n * 3 * perSide;
+  }
+  if(repMatch && holdMatch){
+    // Wiederholungen MIT Haltezeit, z.B. "12 Wdh. · 5 Sek."
+    var reps_n2 = parseInt(repMatch[1]);
+    var hold_n = parseInt(holdMatch[1]);
+    // pro Wdh: Haltezeit + 2 Sek Übergang
+    var perSide2 = /Seite/.test(reps) ? 2 : 1;
+    return reps_n2 * (hold_n + 2) * perSide2;
+  }
+  if(holdMatch && !repMatch){
+    // reine Halteübung
+    var hold_n2 = parseInt(holdMatch[1]);
+    var perSide3 = /Seite/.test(reps) ? 2 : 1;
+    return hold_n2 * perSide3;
+  }
+  // Atemzüge: ca. 6 Sek pro Atemzug
+  var breathMatch = reps.match(/(\d+)\s*(tiefe\s*)?Atemz/);
+  if(breathMatch){
+    return parseInt(breathMatch[1]) * 6;
+  }
+  return 30;
+}
+
+function streakMsg(n){
+  if(n===0) return ['Starte heute!','Dein erster Tag wartet'];
+  if(n<3)   return [n+' Tage! Guter Start 💪','Bleib dran — ab Tag 5 wird es zur Gewohnheit'];
+  if(n<7)   return [n+' Tage! Momentum aufgebaut 🔥','Eine Woche und du wirst es spüren'];
+  if(n<14)  return [n+' Tage! Eine Woche durch 🏅','Dein Körper beginnt sich zu verändern'];
+  if(n<21)  return [n+' Tage! Halbzeit in Phase 2 ⚡','Erste spürbare Fortschritte'];
+  if(n<42)  return [n+' Tage! Haltung verbessert sich 🎯','Aufrechter Gang kommt automatisch'];
+  return [n+' Tage! Elite-Level 🏆','Du bist nicht mehr derselbe wie in Woche 1'];
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HOME SCREEN
+// ═══════════════════════════════════════════════════════════════════════════
+function showHome(){
+  document.getElementById('homeScreen').classList.remove('hidden');
+  document.getElementById('resetScreen').classList.add('hidden');
+  document.getElementById('mainApp').style.display='none';
+
+  document.getElementById('hdDay').textContent=S.day;
+
+  // Streak
+  const [msg,sub]=streakMsg(S.streak);
+  document.getElementById('hsStreak').textContent=S.streak;
+  document.getElementById('hsLabel').textContent=S.streak>0?'🔥 '+msg:'Starte deinen Streak!';
+  document.getElementById('hsSub').textContent=sub;
+
+  const p=ph();
+  const chip=document.getElementById('hdPhaseChip');
+  chip.textContent=p.name+' · '+p.weeks;
+  chip.style.background=p.color; chip.style.border='1px solid '+p.border; chip.style.color=p.tc;
+
+  // Coach
+  let c='';
+  if(S.basisStreak>=2) c=`${S.basisStreak} Tage Basis in Folge. Heute wäre Voll-Tag — du schaffst das.`;
+  else if(S.streak===0) c='Erster Tag! Starte mit Voll — lerne alle Übungen kennen.';
+  else if(S.day%14===1&&S.day>1) c=`Neue Phase! ${p.name} beginnt. Neue Übungen warten. 🆕`;
+  else c='Wie ist deine Energie? Beide Entscheidungen sind richtig.';
+  document.getElementById('hdCoach').textContent=c;
+
+  // Basis pills
+  document.getElementById('hdBasisDesc').textContent=`${p.basis.length} Übungen · 2–3 Sätze · ~8–10 Min`;
+  document.getElementById('hdBasisPills').innerHTML=p.basis.map(e=>`<span class="pill ${p.newB.includes(e.id)?'pill-new':'pill-g'}">${LIB[e.id].name}${p.newB.includes(e.id)?' 🆕':''}</span>`).join('');
+
+  // Voll pills
+  document.getElementById('hdVollDesc').textContent=`${p.voll.length} Übungen · 3 Sätze · ~15–20 Min`;
+  document.getElementById('hdVollPills').innerHTML=p.voll.map(e=>`<span class="pill ${p.newV.includes(e.id)?'pill-new':'pill-b'}">${LIB[e.id].name}${p.newV.includes(e.id)?' 🆕':''}</span>`).join('');
+
+  document.getElementById('hdStreakNote').textContent=S.streak>0?`🔥 Streak: ${S.streak} Tage · zählt für Basis und Voll`:'';
+}
+
+function chooseMode(mode){
+  S.mode=mode; sv('a3_mode',mode);
+  document.getElementById('homeScreen').classList.add('hidden');
+  document.getElementById('mainApp').style.display='block';
+  render();
+}
+
+function changeMode(){
+  S.mode=null; S.done=[]; S.openId=null;
+  sv('a3_mode',null); sv('a3_done',[]);
+  Object.values(timers).forEach(t=>{if(t&&t.iv)clearInterval(t.iv);}); timers={};
+  showHome();
+}
+
+function backToHome(){showHome();}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// WICKEL RESET SCREEN
+// ═══════════════════════════════════════════════════════════════════════════
+function showResetScreen(){
+  document.getElementById('homeScreen').classList.add('hidden');
+  document.getElementById('resetScreen').classList.remove('hidden');
+  S.resetDone=[];
+  document.getElementById('rsStreak').textContent=S.resetToday;
+  renderResetExercises();
+  updateResetBtn();
+}
+
+function renderResetExercises(){
+  const list=document.getElementById('resetExList'); list.innerHTML='';
+  RESET_EX.forEach(ex=>{
+    const isDone=S.resetDone.includes(ex.id), isOpen=S.resetOpenId===ex.id;
+    const card=document.createElement('div');
+    card.className='reset-ex';
+    card.innerHTML=`
+      <div class="reset-ex-head" onclick="toggleResetEx('${ex.id}')">
+        <div class="reset-ex-icon">${ex.icon}</div>
+        <div style="flex:1">
+          <div class="reset-ex-name">${ex.name}</div>
+          <div class="reset-ex-sets">${ex.sets}</div>
+        </div>
+        <div class="reset-ex-done${isDone?' chk':''}">${isDone?'✓':''}</div>
+      </div>
+      <div class="reset-ex-body${isOpen?' open':''}">
+        ${ex.steps.map((s,i)=>`<div class="reset-step"><div class="reset-snum">${i+1}</div><div>${s}</div></div>`).join('')}
+        <div class="tip-box" style="border-color:rgba(168,85,247,.3);color:var(--purple);background:rgba(168,85,247,.07)"><span class="bold">💡</span>${ex.tip}</div>
+        ${isDone
+          ?`<div class="reset-done-lbl">✓ Erledigt!</div>`
+          :`<button class="timer-btn" id="rtbtn-${ex.id}" onclick="toggleResetTimer('${ex.id}')">▶ Countdown starten (${fmtTime(calcCountdown(ex.sets))})</button>
+            <div class="timer-disp" id="rtdisp-${ex.id}">00:00</div>
+            <button class="done-btn" style="color:var(--purple);border-color:var(--purple)" onclick="markResetDone('${ex.id}')">✓ Erledigt</button>`
+        }
+      </div>`;
+    list.appendChild(card);
+  });
+}
+
+function toggleResetEx(id){S.resetOpenId=S.resetOpenId===id?null:id; renderResetExercises();}
+
+function toggleResetTimer(id){
+  if(resetTimers[id]&&resetTimers[id].iv){
+    clearInterval(resetTimers[id].iv); resetTimers[id].iv=null;
+    const b=document.getElementById('rtbtn-'+id);
+    if(b){b.textContent='▶ Fortsetzen';b.classList.remove('run');}
+  } else {
+    const ex=RESET_EX.find(e=>e.id===id);
+    const total=calcCountdown(ex?ex.sets:'');
+    let remaining=(resetTimers[id] && typeof resetTimers[id].secs==='number') ? resetTimers[id].secs : total;
+    const obj={secs:remaining,total:total,iv:null};
+    const d=document.getElementById('rtdisp-'+id);
+    if(d){d.style.display='block';d.textContent=fmtTime(remaining);}
+    obj.iv=setInterval(()=>{
+      obj.secs--;
+      const dd=document.getElementById('rtdisp-'+id);
+      if(dd){
+        dd.textContent=fmtTime(Math.max(obj.secs,0));
+        dd.style.color=(obj.secs<=5&&obj.secs>0)?'var(--red)':'var(--gold)';
+      }
+      if(obj.secs<=0){
+        clearInterval(obj.iv); obj.iv=null;
+        if(dd){dd.textContent='✓ Fertig!';dd.style.color='var(--success)';}
+        const b=document.getElementById('rtbtn-'+id);
+        if(b){b.textContent='▶ Nochmal';b.classList.remove('run');}
+        obj.secs=obj.total;
+      }
+    },1000);
+    resetTimers[id]=obj;
+    const b=document.getElementById('rtbtn-'+id); if(b){b.textContent='⏸ Pause';b.classList.add('run');}
+  }
+}
+
+function markResetDone(id){
+  if(resetTimers[id]){clearInterval(resetTimers[id].iv);delete resetTimers[id];}
+  if(!S.resetDone.includes(id)) S.resetDone.push(id);
+  S.resetOpenId=null;
+  renderResetExercises();
+  updateResetBtn();
+}
+
+function updateResetBtn(){
+  const btn=document.getElementById('resetFinishBtn'), all=S.resetDone.length>=RESET_EX.length;
+  btn.className='reset-finish'+(all?'':' nope');
+  btn.onclick=all?finishReset:null;
+}
+
+function finishReset(){
+  S.resetToday++; S.totReset++;
+  sv('a3_rt',S.resetToday); sv('a3_tr',S.totReset);
+  Object.values(resetTimers).forEach(t=>{if(t&&t.iv)clearInterval(t.iv);}); resetTimers={};
+  document.getElementById('modEm').textContent='🍼';
+  document.getElementById('modTi').textContent='Wickel-Reset ✓';
+  document.getElementById('modTx').textContent=`Super! Reset Nr. ${S.resetToday} heute.\nVorbeuge neutralisiert — Rücken dankt es dir.\n\nHeute gesamt: ${S.totReset} Resets absolviert.`;
+  document.getElementById('modalBg').classList.add('open');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MAIN RENDER
+// ═══════════════════════════════════════════════════════════════════════════
+function render(){
+  renderStreakHero(); renderModeBar(); renderPhaseBanner();
+  renderCoachWarn(); renderMot(); renderStats();
+  renderMilestones(); renderTimeline(); renderProgress();
+  renderExercises(); renderCompleteBtn();
+}
+
+function renderStreakHero(){
+  const n=S.streak;
+  document.getElementById('mainStreakNum').textContent=n;
+  const [msg,sub]=streakMsg(n);
+  document.getElementById('mainStreakMsg').textContent=n>0?msg:'Starte heute!';
+  document.getElementById('mainStreakSub').textContent=sub;
+}
+
+function renderModeBar(){
+  const m=S.mode;
+  document.getElementById('barIcon').textContent=m==='basis'?'🟢':'🔵';
+  const bn=document.getElementById('barName');
+  bn.textContent=m==='basis'?'Basis-Modus':'Voll-Modus';
+  bn.style.color=m==='basis'?'var(--success)':'var(--accent)';
+  document.getElementById('barSub').textContent=m==='basis'?'3 Übungen · ~8–10 Min':'Volle Routine · ~15–20 Min';
+}
+
+function renderPhaseBanner(){
+  const p=ph(), b=document.getElementById('phaseBanner');
+  b.style.cssText=`margin:10px 16px 0;border-radius:12px;padding:11px 15px;background:${p.color};border:1px solid ${p.border}`;
+  b.innerHTML=`<div class="pb-title" style="color:${p.tc}">${p.name} · ${p.weeks}</div><div class="pb-sub" style="color:${p.tc}">${p.focus}</div>`;
+}
+
+function renderCoachWarn(){
+  const w=document.getElementById('coachWarn');
+  if(S.basisStreak>=2&&S.mode==='basis'){w.textContent=`💬 Coach: ${S.basisStreak} Tage Basis in Folge. Morgen ist Voll-Tag!`;w.classList.add('show');}
+  else w.classList.remove('show');
+}
+
+function renderMot(){
+  const arr=S.mode==='basis'?MOT_B:MOT_V;
+  document.getElementById('motTxt').textContent=arr[(S.day-1)%arr.length];
+}
+
+function renderStats(){
+  document.getElementById('stStreak').textContent=S.streak;
+  document.getElementById('stBasis').textContent=S.totBasis;
+  document.getElementById('stVoll').textContent=S.totVoll;
+  document.getElementById('stReset').textContent=S.totReset;
+}
+
+function renderMilestones(){
+  const row=document.getElementById('msRow'); row.innerHTML='';
+  MILESTONES.forEach((ms,i)=>{
+    const done=S.day>ms.day, active=!done&&S.day>((MILESTONES[i-1] && MILESTONES[i-1].day) ? MILESTONES[i-1].day : 0);
+    const d=document.createElement('div');
+    d.className='ms-card'+(done?' done':active?' active':'');
+    d.innerHTML=(done?'<div class="ms-chk">✓</div>':'')+`<div class="ms-wk">${ms.week}</div><div class="ms-goal">${ms.goal}</div>`;
+    row.appendChild(d);
+  });
+}
+
+function renderTimeline(){
+  const wrap=document.getElementById('tlRows'); wrap.innerHTML='';
+  const dayNow=S.day;
+  const dayMap=[4,14,28,42,56];
+  TIMELINE_ENTRIES.forEach((e,i)=>{
+    const targetDay=dayMap[i];
+    const past=dayNow>targetDay, now=!past&&dayNow>=(dayMap[i-1]||0);
+    const row=document.createElement('div');
+    row.className='tl-row'+(now?' now-row':'');
+    row.innerHTML=`<div class="tl-dot ${past?'past':now?'now':'future'}"></div><div class="tl-content"><div class="tl-when">${e.when}</div><div class="tl-what">${e.what}</div></div>`;
+    wrap.appendChild(row);
+  });
+}
+
+function renderProgress(){
+  const d=S.day, exs=getExs();
+  document.getElementById('progDay').innerHTML=`Tag ${d} <span>von 56</span>`;
+  document.getElementById('progPh').textContent=['Phase 1 · Körperbewusstsein','Phase 2 · Tiefenmuskulatur','Phase 3 · Automatisierung','Phase 4 · Kraft & Kontrolle'][phIdx()];
+  document.getElementById('streakBadge').textContent='🔥 '+S.streak;
+  document.getElementById('progFill').style.width=Math.min(d/56*100,100)+'%';
+  document.getElementById('progCnt').textContent=S.done.length+' von '+exs.length+' Übungen erledigt';
+}
+
+function renderExercises(){
+  const exs=getExs(), list=document.getElementById('exList'); list.innerHTML='';
+  exs.forEach(ex=>{
+    const isDone=S.done.includes(ex.id), isOpen=S.openId===ex.id;
+    const card=document.createElement('div');
+    card.className='ex-card'+(isDone?' done-c':'')+(isOpen?' open-c':'');
+    const newTag=ex.isNew?'<span class="new-badge">🆕 NEU</span>':'';
+    const noteTag=ex.note&&ex.note!='NEU'?`<span style="font-size:10px;color:var(--gold);margin-left:5px">${ex.note}</span>`:'';
+    card.innerHTML=`
+      <div class="ex-head" onclick="toggleEx('${ex.id}')">
+        <div class="ex-ico">${ex.icon}</div>
+        <div style="flex:1"><div class="ex-nm">${ex.name}${newTag}</div><div class="ex-st">${ex.sets} · ${ex.reps}${noteTag}</div></div>
+        <div class="ex-chk${isDone?' chk':''}">${isDone?'✓':''}</div>
+      </div>
+      <div class="ex-body${isOpen?' open':''}">
+        <div class="inf-lbl">Trainierte Muskulatur</div><div class="mus-txt">${ex.muscle}</div>
+        <div class="why-box"><strong>Warum?</strong> ${ex.why}</div>
+        <div class="stp-lbl">Ausführung</div>
+        ${ex.steps.map((s,i)=>`<div class="stp-row"><div class="stp-num">${i+1}</div><div class="stp-txt">${s}</div></div>`).join('')}
+        <div class="tip-box"><span class="bold">💡 Tipp:</span>${ex.tip}</div>
+        <div class="err-box"><span class="bold">Fehler:</span>${ex.err}</div>
+        ${isDone?`<div class="done-lbl">✓ Stark gemacht!</div>`:`
+          <button class="main-timer-btn" id="tbtn-${ex.id}" onclick="toggleTimer('${ex.id}')">▶ Countdown starten (${fmtTime(calcCountdown(ex.reps))})</button>
+          <div class="timer-disp" id="tdisp-${ex.id}">00:00</div>
+          <button class="main-done-btn" onclick="markDone('${ex.id}')">✓ Übung abgeschlossen</button>`}
+      </div>`;
+    list.appendChild(card);
+    if(timers[ex.id]){
+      const td=document.getElementById('tdisp-'+ex.id); if(td){td.style.display='block';td.textContent=fmtTime(timers[ex.id].secs);}
+      const tb=document.getElementById('tbtn-'+ex.id); if(tb){tb.textContent='⏸ Pause';tb.classList.add('run');}
+    }
+  });
+}
+
+function renderCompleteBtn(){
+  const exs=getExs(), btn=document.getElementById('completeBtn'), all=S.done.length>=exs.length;
+  btn.className='complete-btn '+(all?'ready':'nope');
+  btn.textContent=all?(S.mode==='basis'?'✓ Basis abschließen 🟢':'✓ Voll-Workout abschließen 🔵'):`Noch ${exs.length-S.done.length} Übung(en) offen`;
+  btn.onclick=all?finishWorkout:null;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════════════════════════════════
+function toggleEx(id){S.openId=S.openId===id?null:id; renderExercises();}
+
+function toggleTimer(id){
+  if(timers[id]&&timers[id].iv){
+    // pausieren
+    clearInterval(timers[id].iv); timers[id].iv=null;
+    const b=document.getElementById('tbtn-'+id); if(b){b.textContent='▶ Fortsetzen';b.classList.remove('run');}
+  } else {
+    // Countdown starten/fortsetzen
+    const exs=getExs();
+    const ex=exs.find(e=>e.id===id);
+    const total=calcCountdown(ex?ex.reps:'');
+    let remaining=(timers[id] && typeof timers[id].secs==='number') ? timers[id].secs : total;
+    const obj={secs:remaining,total:total,iv:null};
+    const d=document.getElementById('tdisp-'+id);
+    if(d){d.style.display='block';d.textContent=fmtTime(remaining);}
+    obj.iv=setInterval(()=>{
+      obj.secs--;
+      const dd=document.getElementById('tdisp-'+id);
+      if(dd){
+        dd.textContent=fmtTime(Math.max(obj.secs,0));
+        if(obj.secs<=5&&obj.secs>0) dd.style.color='var(--red)';
+        else dd.style.color='var(--gold)';
+      }
+      if(obj.secs<=0){
+        clearInterval(obj.iv); obj.iv=null;
+        if(dd){dd.textContent='✓ Fertig!';dd.style.color='var(--success)';}
+        const b=document.getElementById('tbtn-'+id);
+        if(b){b.textContent='▶ Nochmal';b.classList.remove('run');}
+        obj.secs=obj.total; // reset für nächsten Satz
+      }
+    },1000);
+    timers[id]=obj;
+    const b=document.getElementById('tbtn-'+id); if(b){b.textContent='⏸ Pause';b.classList.add('run');}
+  }
+}
+
+function markDone(id){
+  if(timers[id]){clearInterval(timers[id].iv);delete timers[id];}
+  if(!S.done.includes(id)){S.done=[...S.done,id];sv('a3_done',S.done);}
+  S.openId=null; renderExercises(); renderProgress(); renderCompleteBtn();
+}
+
+function finishWorkout(){
+  const exs=getExs(); if(S.done.length<exs.length) return;
+  const mode=S.mode;
+  S.streak++; S.day=Math.min(S.day+1,56);
+  if(mode==='basis'){S.basisStreak++;S.totBasis++;}else{S.basisStreak=0;S.totVoll++;}
+  sv('a3_day',S.day); sv('a3_streak',S.streak); sv('a3_bs',S.basisStreak); sv('a3_tb',S.totBasis); sv('a3_tv',S.totVoll);
+  S.done=[]; S.mode=null; S.openId=null; S.resetToday=0;
+  sv('a3_done',[]); sv('a3_mode',null); sv('a3_rt',0);
+  Object.values(timers).forEach(t=>{if(t&&t.iv)clearInterval(t.iv);}); timers={};
+  const newPh=Math.min(Math.floor((S.day-1)/14),3), oldPh=Math.min(Math.floor((S.day-2)/14),3), changed=newPh>oldPh;
+  const [smsg]=streakMsg(S.streak);
+  document.getElementById('modEm').textContent=changed?'🚀':(mode==='basis'?'🟢':'🏆');
+  document.getElementById('modTi').textContent=changed?'Neue Phase beginnt!':(mode==='basis'?'Basis erledigt!':'Voll-Workout erledigt!');
+  document.getElementById('modTx').textContent=changed
+    ?`🎯 ${PROGRAM[newPh].name} startet morgen.\nNeue Übungen warten. Streak: ${S.streak} 🔥`
+    :`${smsg}\nStreak: ${S.streak} Tage 🔥\n${mode==='basis'?'Gewohnheit gehalten — das zählt.':'Voller Einsatz — echter Fortschritt.'}`;
+  document.getElementById('modalBg').classList.add('open');
+}
+
+function closeModal(){
+  document.getElementById('modalBg').classList.remove('open');
+  showHome();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════════
+if(!S.mode) showHome();
+else{document.getElementById('homeScreen').classList.add('hidden');document.getElementById('mainApp').style.display='block';render();}
+</script>
+</body>
+</html>
